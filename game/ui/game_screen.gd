@@ -28,20 +28,48 @@ func _ready() -> void:
 	_win_home.pressed.connect(_go_home)
 	_board.pour_finished.connect(_on_pour_finished)
 	_board.level_completed.connect(_on_level_completed)
-	_start_level(_level_number)
+	var resume: Variant = CampaignSession.resume_payload
+	CampaignSession.resume_payload = null
+	_start_level(_level_number, resume)
 
-func _start_level(level_number: int) -> void:
+func _start_level(level_number: int, resume: Variant = null) -> void:
 	_won = false
 	_win_layer.visible = false
 	_level_number = level_number
 	_history.clear()
-	var level: Level = LevelGenerator.generate(_level_number)
-	_board.load_level(level)
+	if resume != null and int(resume.get("level_number", -1)) == _level_number:
+		_apply_mid_game(resume)
+	else:
+		var level: Level = LevelGenerator.generate(_level_number)
+		_board.load_level(level)
+		_pre_pour = _make_snapshot()
+		_hud.set_level_number(_level_number)
+		_hud.set_move_count(0)
+	_hud.set_undo_enabled(not _history.is_empty())
+	_hud.set_controls_enabled(true)
+
+func _apply_mid_game(payload: Dictionary) -> void:
+	var capacity: int = int(payload.get("capacity", _capacity_for_level(_level_number)))
+	var hist: Array = payload.get("history", [])
+	if hist is Array and not hist.is_empty() and hist[0] is Dictionary:
+		capacity = int(hist[0].get("capacity", capacity))
+	var tubes: Array[Tube] = []
+	for colors in payload.get("tubes", []):
+		tubes.append(Tube.new(capacity, colors))
+	var move_count: int = int(payload.get("move_count", 0))
+	var restored := Level.new(_level_number, tubes, move_count)
+	_board.load_level(restored)
+	_history.clear()
+	if hist is Array:
+		for snap in hist:
+			if snap is Dictionary:
+				_history.append(snap.duplicate(true))
 	_pre_pour = _make_snapshot()
 	_hud.set_level_number(_level_number)
-	_hud.set_move_count(0)
-	_hud.set_undo_enabled(false)
-	_hud.set_controls_enabled(true)
+	_hud.set_move_count(move_count)
+
+func _capacity_for_level(level_number: int) -> int:
+	return LevelGenerator.generate(level_number).capacity()
 
 func _make_snapshot() -> Dictionary:
 	var level: Level = _board.get_level()
@@ -61,6 +89,18 @@ func _restore_snapshot(snap: Dictionary) -> void:
 	var restored := Level.new(_level_number, tubes, int(snap["moves"]))
 	_board.load_level(restored)
 
+func _persist_mid_game() -> void:
+	var level: Level = _board.get_level()
+	if level == null:
+		return
+	SaveService.save_mid_game(
+		_level_number,
+		level.tube_color_arrays(),
+		_history.duplicate(true),
+		level.move_count,
+		level.capacity()
+	)
+
 func _on_pour_finished(_from: int, _to: int, amount: int) -> void:
 	if amount <= 0:
 		return
@@ -70,6 +110,8 @@ func _on_pour_finished(_from: int, _to: int, amount: int) -> void:
 	if level:
 		_hud.set_move_count(level.move_count)
 	_hud.set_undo_enabled(not _history.is_empty())
+	if not _won:
+		_persist_mid_game()
 
 func _on_undo() -> void:
 	if _won or _board.is_busy() or _history.is_empty():
@@ -79,25 +121,31 @@ func _on_undo() -> void:
 	_pre_pour = _make_snapshot()
 	_hud.set_move_count(int(snap["moves"]))
 	_hud.set_undo_enabled(not _history.is_empty())
+	_persist_mid_game()
 
 func _on_reset() -> void:
 	if _won or _board.is_busy():
 		return
-	_start_level(_level_number)
+	SaveService.clear_mid_game()
+	_start_level(_level_number, null)
 
 func _on_level_completed() -> void:
 	if _won:
 		return
 	_won = true
 	CampaignSession.register_win(_level_number)
+	SaveService.clear_mid_game()
+	SaveService.save_progress(CampaignSession.campaign_level, CampaignSession.max_completed)
 	_hud.set_controls_enabled(false)
 	_hud.set_undo_enabled(false)
 	_win_next.text = "Level %d" % CampaignSession.campaign_level
 	_win_layer.visible = true
 
 func _on_next_level() -> void:
-	CampaignSession.request_play(CampaignSession.campaign_level)
-	_start_level(CampaignSession.requested_level)
+	CampaignSession.request_play(CampaignSession.campaign_level, null)
+	_start_level(CampaignSession.requested_level, null)
 
 func _go_home() -> void:
+	if not _won:
+		_persist_mid_game()
 	get_tree().change_scene_to_file("res://ui/home.tscn")

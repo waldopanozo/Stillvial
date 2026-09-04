@@ -19,7 +19,7 @@
 - Avoids saturated generic keywords such as `Water Sort Puzzle` and `Color Sort`; those stay in store metadata and descriptions only.
 - Short and pronounceable in English and Spanish; joins *still* (calm) and *vial* (vessel), so it suggests quiet ordering without describing the genre generically.
 - Initial checks found no exact game namesake; repeating `gh search repos Stillvial --limit 20` on 2026-09-04 returned zero repositories.
-- Fits the zen promise and product differentiators: patterns beyond color, local daily challenge, offline play with no ads or tracking.
+- Fits the zen promise and product differentiators: patterns beyond color, local daily challenge, offline play with no ads or tracking, and a neurodivergent-first calm UX (ADHD / autism / sensory-friendly priority — not medical claims).
 
 ## Icon brief (v1)
 

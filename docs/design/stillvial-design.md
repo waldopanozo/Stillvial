@@ -16,19 +16,36 @@
 
 Open-source Water Sort–style puzzle (tubes + color pouring), 100% offline, no ads or tracking. Targets **Android** (Play + F-Droid when ready) and **Web** (HTML5 demo for portfolio). **No iOS** in the near term.
 
+### Primary audience (design priority)
+
+Stillvial is built **first** for people who benefit from calm, predictable, low-distraction play — especially **ADHD** and **autistic** players (and anyone who wants sensory-friendly puzzles). General “casual puzzle” users are welcome, but when trade-offs appear (stimulation vs calm, novelty vs predictability, monetization pressure vs safety), **prefer the neurodivergent-friendly option**.
+
+This is **not** a medical product and must never claim to diagnose, treat, or cure ADHD or autism. Store copy should say *sensory-friendly / calm / low-pressure / accessible*, not therapy claims.
+
 ### Product goals
 
-- Serve **both** cases: portfolio (demo + code) and store distribution.
+- Serve **both** cases: portfolio (demo + code) and store distribution with a path to **sustainable revenue** that does **not** rely on ads or surveillance.
 - Prioritize **smooth play on modest phones**.
-- Differentiate from generic clones with a light twist (not a full genre rewrite).
+- Differentiate from generic Water Sort clones via **neurodivergent-first UX** (not only cosmetics).
+
+### Neurodivergent-first UX pillars (v1+)
+
+| Pillar | Product implications |
+|--------|----------------------|
+| Low pressure | Zen default: no timer, no energy, no punishing streaks, calm win copy |
+| Predictability | Deterministic campaign seeds; clear rules; undo/reset always available |
+| Multi-channel cues | Color **and** persistent patterns/shapes (not color-only); readable selection states |
+| Sensory control | Optional sound/haptics (off or soft by default); **Low effects**; no flashing/neon spam |
+| Focus-friendly chrome | One primary action per screen; minimal HUD clutter; no feed-like distraction |
+| Privacy as safety | Offline gameplay; no ads/trackers (ads are especially hostile for attention & trust) |
 
 ### v1 twist (light combo)
 
 | Piece | Behavior |
 |-------|----------|
 | Zen by default | No timer or pressure; optional honest stars / “par” |
-| Daily challenge | Seed = UTC date; shared daily puzzle; local streak |
-| Basic accessibility | Patterns/shapes in addition to color (color blindness) |
+| Daily challenge | Seed = UTC date; shared daily puzzle; local streak (non-punitive) |
+| Accessibility | Patterns/shapes + color; sensory toggles |
 
 ### Kept from the reference Water Sort (the good parts)
 
@@ -36,17 +53,27 @@ Open-source Water Sort–style puzzle (tubes + color pouring), 100% offline, no 
 - Random mode by difficulty
 - Undo, limited tips, reset, mid-game resume
 - Local multi-profile
-- Themes / skins (reasonable v1 scope)
+- Themes / skins (reasonable v1 scope; avoid overstimulating palettes as default)
 - Privacy-first (no network during gameplay)
 
 ### Out of v1
 
 - iOS
 - Cloud sync / accounts
-- Ads, analytics, IAP
-- Paid power-ups
+- Ads, analytics, rewarded video
+- Aggressive IAP / pay-to-win power-ups
 - Long narrative
-- Monetization as a success metric
+- Medical or therapeutic claims
+
+### Revenue (aligned with privacy + audience)
+
+Making money is an explicit project goal, but **without ads or tracking**. Preferred directions (pick later, document in store plan):
+
+- Paid unlock / “Support Stillvial” one-time purchase, or tip jar
+- Optional cosmetic packs that stay calm (no lootboxes)
+- F-Droid build stays free/libre; Play may use paid unlock if needed
+
+Never gate basic calm play behind surveillance or ad watching.
 
 ### Phase 0 (before game code) — complete
 
@@ -175,8 +202,8 @@ Play downloads, iOS, revenue.
 
 | Topic | Decision |
 |-------|----------|
-| Goal | Portfolio + stores (Android), performance on modest hardware |
-| Mechanics | Water Sort + zen / daily / patterns twist |
+| Goal | Portfolio + stores (Android), modest-device performance, **neurodivergent-first** calm puzzle, privacy-preserving revenue |
+| Mechanics | Water Sort + zen / daily / patterns / sensory controls |
 | Stack | Godot 4 |
 | v1 platforms | Android + Web; no iOS |
 | License | MIT |
@@ -184,6 +211,8 @@ Play downloads, iOS, revenue.
 | Folder | `opensource/stillvial`; portfolio only references it |
 | Name | Stillvial / `stillvial` — approved 2026-09-04 |
 | Icon | Vial at rest |
+| Audience priority | ADHD / autistic / sensory-friendly players first; general casual second |
+| Monetization | No ads/tracking; prefer one-time support/unlock or calm cosmetics |
 
 ---
 
