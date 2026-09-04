@@ -19,6 +19,7 @@ Stillvial is a game and accessibility-minded hobby product — **not** medical a
 - **Sensory controls** — soft/optional sound & haptics; low-effects mode  
 - **Predictable** — deterministic levels, undo, reset, local resume  
 - **No ads, no tracking** — your attention stays on the tubes  
+- **Guest-first** — play with zero account; optional cloud backup / sign-in later (never required)
 
 ## Docs
 
@@ -30,7 +31,7 @@ Stillvial is a game and accessibility-minded hobby product — **not** medical a
 
 ## Status
 
-Godot MVP plan complete (Tasks 1–10): playable campaign, save/resume, tips, patterns, daily, export presets. Install Godot export templates before producing APK/Web binaries. Portfolio link still pending.
+Godot MVP plan complete (Tasks 1–10): playable campaign, save/resume, tips, patterns, daily, export presets. Install Godot export templates before producing APK/Web binaries. Next design track: guest-first optional sync (§8) — start with local export/import, then opt-in cloud.
 
 ## Development
 

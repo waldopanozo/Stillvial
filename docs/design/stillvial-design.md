@@ -109,7 +109,7 @@ stillvial/
 1. **Domain first:** color identities as `int` / enum; theme maps ID → color + pattern.
 2. **Single `apply_pour`:** used by generator, solver, and live play (avoid Flutter-fork duplication).
 3. **Lean board:** `Tween` / simple shader; optional particles; **Low effects** setting for weak hardware.
-4. **Local persistence:** progress, profiles, mid-level state, daily for the day — no network.
+4. **Local persistence first:** progress, profiles, mid-level state, daily — works with **zero network**. Optional cloud sync is additive (§8).
 5. **One Godot project** exports Android (APK/AAB) and Web (HTML5).
 
 ### Performance (design requirements)
@@ -213,9 +213,68 @@ Play downloads, iOS, revenue.
 | Icon | Vial at rest |
 | Audience priority | ADHD / autistic / sensory-friendly players first; general casual second |
 | Monetization | No ads/tracking; prefer one-time support/unlock or calm cosmetics |
+| Identity / sync (v1.x) | **Guest-first**; local export/import; optional cloud on own servers; Google/Facebook login **optional only**, never required to play |
 
 ---
 
 ## 7. Next step
 
-Implementation plan: `docs/plans/2026-09-04-stillvial-mvp-godot.md` (scaffold Godot → domain → board → campaign → save → tips → patterns → daily → exports).
+- Godot MVP plan (Tasks 1–10): `docs/plans/2026-09-04-stillvial-mvp-godot.md` — complete for local play.
+- Follow-up plan: optional identity + sync + soft messaging (§8) after MVP is polished and export templates are installed.
+
+---
+
+## 8. Optional identity, sync, and belonging (v1.x)
+
+**Decision (2026-09-04):** Option **D** — guest play is the priority; add **export/import** plus **optional** cloud sync on our servers; Google/Facebook may be offered as **optional** sign-in only.
+
+### Truth about local progress
+
+| Event | Typical outcome |
+|-------|-----------------|
+| App update (same package, data kept) | Progress usually kept |
+| Clear storage / uninstall / new device | Local progress lost |
+| Web/other browser profile | Separate local store |
+
+So “belonging” across devices needs **explicit** backup or sync — never implied magic.
+
+### Priority order (must not invert)
+
+1. **Just play (guest)** — no account, no network, full campaign/daily/settings on device.  
+2. **Export / import progress** (JSON file or share sheet) — offline belonging, open-source friendly, works even if the player rejects all accounts.  
+3. **Optional cloud sync** on **our** backend — opt-in, calm copy, can revoke/delete.  
+4. **Optional Google / Facebook login** — only as convenience providers for (3); never a hard gate; Play build may include them; F-Droid build should remain playable **without** proprietary SDKs (guest + export; sync via email/code if offered).
+
+### What we may sync (opt-in)
+
+- Campaign progress (level, max completed, stars if any)
+- Settings (patterns, low effects, audio/haptics)
+- Daily streak metadata (dates, not a public leaderboard by default)
+- Soft product messages already delivered / dismissed (welcome, “cloud save on”, config tips)
+
+### Soft messaging (calm, ADHD/autism-friendly)
+
+- Welcome once for guests; separate short “Cloud backup is optional” when entering Account.
+- Satisfaction / feedback: **opt-in**, infrequent, dismissible, never blocking play or tips.
+- Config-change notes: one-line, quiet, not modal stacks.
+- No red “streak broken” shame UX; no spam push unless explicitly enabled later.
+
+### Backend (our servers)
+
+- Open API + documented schema; prefer publishing server code under MIT alongside the client.
+- Auth: session after optional OAuth or recovery; store minimal profile (provider id / opaque user id).
+- Encryption in transit (HTTPS); delete-account endpoint; no ad/analytics SDKs.
+- Client stays MIT; proprietary OAuth SDKs are **optional compile flavors**, not required for core.
+
+### Open source & store fit
+
+- Core loop remains free/libre and offline.  
+- Optional proprietary login does **not** make the project closed-source, but F-Droid users should not be forced into it.  
+- Store listing: emphasize offline + optional backup; never claim medical benefit; never require login to download/play.
+
+### Non-goals for this feature
+
+- Forced registration at first launch  
+- Social feed, friends list, or competitive ranking as default  
+- Selling personal data  
+- Ads funded by “free account”
