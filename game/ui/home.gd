@@ -2,8 +2,6 @@ extends Control
 
 ## Stillvial home — campaign, daily, accessibility toggles, guest backup.
 
-@onready var _title: Label = $Center/VBox/Title
-@onready var _tagline: Label = $Center/VBox/Tagline
 @onready var _continue_btn: Button = $Center/VBox/ContinueButton
 @onready var _play_btn: Button = $Center/VBox/PlayButton
 @onready var _daily_btn: Button = $Center/VBox/DailyButton
@@ -13,14 +11,11 @@ extends Control
 @onready var _backup_status: Label = $Center/VBox/BackupStatus
 @onready var _patterns_cb: CheckButton = $Center/VBox/Settings/PatternsToggle
 @onready var _low_effects_cb: CheckButton = $Center/VBox/Settings/LowEffectsToggle
-@onready var _bg: ColorRect = $Background
 @onready var _export_dialog: FileDialog = $ExportDialog
 @onready var _import_dialog: FileDialog = $ImportDialog
 
 func _ready() -> void:
-	_bg.color = Palette.board_bg()
-	_title.add_theme_color_override("font_color", Palette.MIST)
-	_tagline.add_theme_color_override("font_color", Color(Palette.MIST.r, Palette.MIST.g, Palette.MIST.b, 0.75))
+	theme = ThemeFactory.build()
 	_streak_label.add_theme_color_override("font_color", Color(Palette.MIST.r, Palette.MIST.g, Palette.MIST.b, 0.7))
 	_backup_status.add_theme_color_override("font_color", Color(Palette.MIST.r, Palette.MIST.g, Palette.MIST.b, 0.65))
 	_hydrate_progress()
@@ -51,15 +46,27 @@ func _hydrate_settings() -> void:
 	_low_effects_cb.set_pressed_no_signal(bool(settings.get(
 		"low_effects", SaveService.DEFAULT_LOW_EFFECTS
 	)))
-	_style_settings_labels()
-
-func _style_settings_labels() -> void:
-	var mist := Color(Palette.MIST.r, Palette.MIST.g, Palette.MIST.b, 0.9)
-	_patterns_cb.add_theme_color_override("font_color", mist)
-	_low_effects_cb.add_theme_color_override("font_color", mist)
 
 func _on_settings_changed(_pressed: bool = false) -> void:
 	SaveService.save_settings(_patterns_cb.button_pressed, _low_effects_cb.button_pressed)
+
+func _apply_cta_hierarchy() -> void:
+	var mid: Variant = SaveService.load_any_mid_game()
+	var continue_is_primary := mid != null or CampaignSession.campaign_level > 1
+	# Spec: Continue primary when resume/progress applies; else Play campaign primary
+	if continue_is_primary:
+		_continue_btn.theme_type_variation = "Primary"
+		_play_btn.theme_type_variation = "Secondary"
+	else:
+		_continue_btn.theme_type_variation = "Secondary"
+		_play_btn.theme_type_variation = "Primary"
+	_daily_btn.theme_type_variation = "Secondary"
+	if SaveService.is_daily_completed(SaveService.utc_date_key()):
+		_daily_btn.modulate = Color(1, 1, 1, 0.65)
+	else:
+		_daily_btn.modulate = Color(1, 1, 1, 1)
+	_export_btn.theme_type_variation = "Ghost"
+	_import_btn.theme_type_variation = "Ghost"
 
 func _refresh_labels() -> void:
 	var mid: Variant = SaveService.load_any_mid_game()
@@ -83,6 +90,7 @@ func _refresh_labels() -> void:
 	else:
 		_streak_label.text = ""
 		_streak_label.visible = false
+	_apply_cta_hierarchy()
 
 func _on_continue() -> void:
 	var mid: Variant = SaveService.load_any_mid_game()

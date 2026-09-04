@@ -221,6 +221,11 @@ Play downloads, iOS, revenue.
 
 - Godot MVP plan (Tasks 1–10): `docs/plans/2026-09-04-stillvial-mvp-godot.md` — complete for local play.
 - Follow-up plan: optional identity + sync + soft messaging (§8) after MVP is polished and export templates are installed.
+- Home UI Theme phase 1 is done (§7.1); phase 2+ can reuse the Theme for board HUD.
+
+### 7.1 Home UI Theme (phase 1)
+
+Home now uses a shared Godot `Theme` (`ThemeFactory` + `Palette` tokens), a deep→teal gradient backdrop with a decorative vial silhouette, and a single primary CTA (Continue or Play). Export/Import are ghost; settings stay quiet. Spec, decisions, and acceptance: `docs/design/2026-09-04-home-ui-theme-design.md`. Screenshot: `docs/screenshots/d18-home-restyle.png`. Board/HUD restyle remains out of scope until a later phase.
 
 ---
 

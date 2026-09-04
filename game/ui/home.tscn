@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://ui/home.gd" id="1_home"]
+[ext_resource type="Script" path="res://ui/home_backdrop.gd" id="2_backdrop"]
 
 [node name="Home" type="Control"]
 layout_mode = 3
@@ -11,7 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_home")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Backdrop" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -19,7 +20,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.071, 0.188, 0.227, 1)
+script = ExtResource("2_backdrop")
 
 [node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -31,17 +32,17 @@ grow_vertical = 2
 
 [node name="VBox" type="VBoxContainer" parent="Center"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 24
 
 [node name="Title" type="Label" parent="Center/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 48
+theme_type_variation = &"Title"
 text = "Stillvial"
 horizontal_alignment = 1
 
 [node name="Tagline" type="Label" parent="Center/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_type_variation = &"Tagline"
 text = "A small ritual of order, every day."
 horizontal_alignment = 1
 
@@ -50,21 +51,18 @@ custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 
 [node name="ContinueButton" type="Button" parent="Center/VBox"]
-custom_minimum_size = Vector2(280, 48)
+custom_minimum_size = Vector2(300, 52)
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
 text = "Continue — Level 1"
 
 [node name="PlayButton" type="Button" parent="Center/VBox"]
-custom_minimum_size = Vector2(280, 48)
+custom_minimum_size = Vector2(300, 52)
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
 text = "Play campaign"
 
 [node name="DailyButton" type="Button" parent="Center/VBox"]
-custom_minimum_size = Vector2(280, 48)
+custom_minimum_size = Vector2(300, 52)
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
 text = "Daily challenge"
 
 [node name="StreakLabel" type="Label" parent="Center/VBox"]
@@ -86,13 +84,11 @@ alignment = 1
 [node name="ExportButton" type="Button" parent="Center/VBox/Backup"]
 custom_minimum_size = Vector2(134, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
 text = "Export"
 
 [node name="ImportButton" type="Button" parent="Center/VBox/Backup"]
 custom_minimum_size = Vector2(134, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
 text = "Import"
 
 [node name="BackupStatus" type="Label" parent="Center/VBox"]
@@ -113,14 +109,12 @@ theme_override_constants/separation = 8
 [node name="PatternsToggle" type="CheckButton" parent="Center/VBox/Settings"]
 custom_minimum_size = Vector2(280, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
 button_pressed = true
 text = "Patterns (accessibility)"
 
 [node name="LowEffectsToggle" type="CheckButton" parent="Center/VBox/Settings"]
 custom_minimum_size = Vector2(280, 40)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
 text = "Low effects"
 
 [node name="ExportDialog" type="FileDialog" parent="."]

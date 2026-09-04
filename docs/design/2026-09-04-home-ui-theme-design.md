@@ -1,7 +1,7 @@
 # Stillvial — Home UI & Theme (phase 1)
 
 **Date:** 2026-09-04  
-**Status:** Approved for planning  
+**Status:** Phase 1 implemented (acceptance checked 2026-09-04)  
 **Scope:** Initial screens and buttons (Home first); shared Theme for later HUD reuse
 
 ## Goal
@@ -95,9 +95,12 @@ No cards, chips, stat strips, or floating badges on the hero.
 
 ## Acceptance checks
 
-- [ ] Title reads as brand hero; tagline supports, does not overpower  
-- [ ] One primary CTA visible; Daily/backup quieter  
-- [ ] Decorative vial visible but does not steal taps  
-- [ ] Patterns / Low effects still persist via `SaveService`  
-- [ ] Looks intentional on 720×1280 portrait  
-- [ ] Theme file reusable later for game HUD buttons  
+- [x] Title reads as brand hero; tagline supports, does not overpower  
+- [x] One primary CTA visible; Daily/backup quieter  
+- [x] Decorative vial visible but does not steal taps  
+- [x] Patterns / Low effects still persist via `SaveService`  
+- [x] Looks intentional on 720×1280 portrait  
+- [x] Theme file reusable later for game HUD buttons  
+
+**Evidence:** `docs/screenshots/d18-home-restyle.png` (720×1280); `ThemeFactory.build()`, `HomeBackdrop`, CTA hierarchy in `ui/home.gd`.  
+

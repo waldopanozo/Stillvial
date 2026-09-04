@@ -1,0 +1,9 @@
+Stillvial vendors the following fonts under the SIL Open Font License (OFL), Version 1.1:
+
+- display.ttf — Fraunces (The Fraunces Project Authors)
+  https://github.com/undercasetype/Fraunces
+
+- ui.ttf — Source Sans 3 (Adobe)
+  https://github.com/adobe-fonts/source-sans
+
+Full OFL text: https://scripts.sil.org/OFL

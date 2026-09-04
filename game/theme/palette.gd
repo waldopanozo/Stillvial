@@ -172,3 +172,13 @@ static func tip_highlight() -> Color:
 
 static func board_bg() -> Color:
 	return DEEP
+
+## UI surfaces (Home / future HUD)
+const SURFACE: Color = Color("0F2A32")
+const SURFACE_RAISED: Color = Color("1A3A44")
+const PRIMARY_FILL: Color = TEAL
+const PRIMARY_TEXT: Color = Color("0A1A1E")
+const OUTLINE: Color = Color(MIST.r, MIST.g, MIST.b, 0.55)
+const GHOST_TEXT: Color = Color(MIST.r, MIST.g, MIST.b, 0.85)
+const MUTED_TEXT: Color = Color(MIST.r, MIST.g, MIST.b, 0.7)
+const DISABLED_FILL: Color = Color(TEAL.r, TEAL.g, TEAL.b, 0.35)
