@@ -189,4 +189,4 @@ Play downloads, iOS, revenue.
 
 ## 7. Next step
 
-Write the Godot MVP implementation plan and scaffold the game project.
+Implementation plan: `docs/plans/2026-09-04-stillvial-mvp-godot.md` (scaffold Godot → domain → board → campaign → save → tips → patterns → daily → exports).

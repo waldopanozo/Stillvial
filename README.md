@@ -17,4 +17,4 @@ Open-source Water Sort–style puzzle built with **Godot 4**, targeting Android 
 
 ## Status
 
-Phase 0 complete; Godot MVP pending.
+Phase 0 complete. Next: Godot MVP — see [implementation plan](./docs/plans/2026-09-04-stillvial-mvp-godot.md).
