@@ -21,12 +21,14 @@ var _pre_pour: Dictionary = {}
 var _won: bool = false
 
 func _ready() -> void:
+	theme = ThemeFactory.build()
+	$WinLayer/Center.theme = theme
 	_is_daily = CampaignSession.is_daily()
 	_daily_date_key = CampaignSession.daily_date_key
 	_level_number = maxi(CampaignSession.requested_level, 1)
 	_win_layer.visible = false
 	_win_label.text = "Order restored"
-	_win_label.add_theme_color_override("font_color", Palette.MIST)
+	_style_win_modal()
 	_apply_accessibility_settings()
 	_hud.undo_pressed.connect(_on_undo)
 	_hud.reset_pressed.connect(_on_reset)
@@ -42,6 +44,20 @@ func _ready() -> void:
 		_start_daily(_daily_date_key)
 	else:
 		_start_level(_level_number, resume)
+
+func _style_win_modal() -> void:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Palette.SURFACE_RAISED
+	sb.set_corner_radius_all(20)
+	sb.content_margin_left = 24
+	sb.content_margin_right = 24
+	sb.content_margin_top = 20
+	sb.content_margin_bottom = 20
+	_win_panel.add_theme_stylebox_override("panel", sb)
+	_win_next.theme_type_variation = "Primary"
+	_win_home.theme_type_variation = "Ghost"
+	_win_label.theme_type_variation = "Title"
+	_win_label.add_theme_font_size_override("font_size", 36)
 
 func _apply_accessibility_settings() -> void:
 	var settings: Dictionary = SaveService.load_settings()

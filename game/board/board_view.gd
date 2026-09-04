@@ -19,13 +19,11 @@ var _tip_to: int = -1
 var _busy: bool = false
 var _tube_views: Array[TubeView] = []
 
-@onready var _bg: ColorRect = $Background
 @onready var _row: HFlowContainer = $Margin/Row
 @onready var _overlay: Control = $Overlay
 @onready var _pour: PourAnimator = $PourAnimator
 
 func _ready() -> void:
-	_bg.color = Palette.board_bg()
 	_pour.low_effects = low_effects
 	_pour.patterns_enabled = patterns_enabled
 	_pour.overlay = _overlay

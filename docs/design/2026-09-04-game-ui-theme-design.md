@@ -57,10 +57,10 @@ Bring the in-game screen into the same hybrid visual system as Home: calm atmosp
 
 ## Acceptance checks
 
-- [ ] GameScreen uses shared Theme; HUD has zero Primary buttons
-- [ ] Board gradient matches brand; no hero vial behind play field
-- [ ] Vials read as glass; patterns still clear
-- [ ] Tip/selection highlights calm and readable
-- [ ] Win modal: one Primary (next), Home quieter; dim overlay
-- [ ] Low effects does not break layout or require fancy animation
-- [ ] Navigation / undo / tip / win flow unchanged in behavior
+- [x] GameScreen uses shared Theme; HUD has zero Primary buttons
+- [x] Board gradient matches brand; no hero vial behind play field
+- [x] Vials read as glass; patterns still clear
+- [x] Tip/selection highlights calm and readable
+- [x] Win modal: one Primary (next), Home quieter; dim overlay
+- [x] Low effects does not break layout or require fancy animation
+- [x] Navigation / undo / tip / win flow unchanged in behavior

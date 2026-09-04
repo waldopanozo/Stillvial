@@ -24,6 +24,10 @@ var _tip_status: Label
 var _tip_feedback_timer: Timer
 
 func _ready() -> void:
+	_undo_btn.theme_type_variation = "Ghost"
+	_reset_btn.theme_type_variation = "Secondary"
+	_tip_btn.theme_type_variation = "Ghost"
+	_home_btn.theme_type_variation = "Ghost"
 	var mist := Palette.MIST
 	_level_label.add_theme_color_override("font_color", mist)
 	_moves_label.add_theme_color_override("font_color", mist)

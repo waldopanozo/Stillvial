@@ -159,10 +159,10 @@ static func _draw_pattern(ci: CanvasItem, band_size: Vector2, color_id: int) -> 
 				x += step
 
 static func glass_fill() -> Color:
-	return Color(MIST.r, MIST.g, MIST.b, 0.22)
+	return Color(MIST.r, MIST.g, MIST.b, 0.28)
 
 static func glass_stroke() -> Color:
-	return Color(MIST.r, MIST.g, MIST.b, 0.55)
+	return Color(MIST.r, MIST.g, MIST.b, 0.7)
 
 static func selection() -> Color:
 	return Color(GOLD.r, GOLD.g, GOLD.b, 0.85)

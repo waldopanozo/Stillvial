@@ -15,6 +15,7 @@ var patterns_enabled: bool = true
 var _layers: Array[LiquidBand] = []
 var _selected: bool = false
 var _tip: bool = false
+var _specular: ColorRect = null
 
 @onready var _glass: Panel = $Glass
 @onready var _layers_root: Control = $Layers
@@ -24,8 +25,23 @@ var _tip: bool = false
 func _ready() -> void:
 	custom_minimum_size = Vector2(TUBE_WIDTH + 12.0, TUBE_HEIGHT + 16.0)
 	_button.pressed.connect(_on_hit)
+	_make_hit_invisible()
 	_highlight.visible = false
+	_highlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Sit behind glass/liquid; match vial footprint for calmer edges.
+	_highlight.position = Vector2(PAD, 8.0)
+	_highlight.size = Vector2(TUBE_WIDTH, TUBE_HEIGHT)
 	_style_glass()
+
+## Transparent hit target — no Button/Secondary outline chrome on hover/focus.
+func _make_hit_invisible() -> void:
+	_button.flat = true
+	var empty := StyleBoxFlat.new()
+	empty.bg_color = Color(0, 0, 0, 0)
+	empty.draw_center = false
+	empty.set_border_width_all(0)
+	for state in ["normal", "hover", "pressed", "focus", "disabled"]:
+		_button.add_theme_stylebox_override(state, empty.duplicate())
 
 func setup(index: int, tube: Tube) -> void:
 	tube_index = index
@@ -70,11 +86,11 @@ func is_selected() -> bool:
 func _sync_highlight() -> void:
 	if _selected:
 		_highlight.color = Palette.selection()
-		_highlight.modulate.a = 0.35
+		_highlight.modulate.a = 0.32
 		_highlight.visible = true
 	elif _tip:
 		_highlight.color = Palette.tip_highlight()
-		_highlight.modulate.a = 0.4
+		_highlight.modulate.a = 0.28
 		_highlight.visible = true
 	else:
 		_highlight.visible = false
@@ -131,7 +147,20 @@ func _style_glass() -> void:
 	sb.corner_radius_bottom_left = 18
 	sb.corner_radius_bottom_right = 18
 	_glass.add_theme_stylebox_override("panel", sb)
+	_ensure_specular()
 	_sync_highlight()
+
+## Thin static left-edge mist line (no animation; OK under Low effects).
+func _ensure_specular() -> void:
+	if _specular != null and is_instance_valid(_specular):
+		return
+	_specular = ColorRect.new()
+	_specular.name = "Specular"
+	_specular.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_specular.color = Color(Palette.MIST.r, Palette.MIST.g, Palette.MIST.b, 0.2)
+	_specular.position = Vector2(5.0, 14.0)
+	_specular.size = Vector2(2.5, TUBE_HEIGHT - 36.0)
+	_glass.add_child(_specular)
 
 func _on_hit() -> void:
 	pressed.emit(tube_index)
