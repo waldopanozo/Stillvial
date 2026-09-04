@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://board/board_test.gd" id="1_test"]
+[ext_resource type="PackedScene" path="res://board/board_view.tscn" id="2_board"]
+
+[node name="BoardTest" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_test")
+
+[node name="BoardView" parent="." instance=ExtResource("2_board")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Hud" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 64.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+
+[node name="Label" type="Label" parent="Hud"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.91, 0.941, 0.91, 1)
+theme_override_font_sizes/font_size = 20
+text = "Board test"

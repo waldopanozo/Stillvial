@@ -1,0 +1,42 @@
+---
+description: Agent must never create git commits in Stillvial
+alwaysApply: true
+---
+
+# No commits by the agent
+
+In this repository the agent **must not** run `git commit`, `git commit --amend`, or any equivalent that creates or rewrites commits.
+
+## Allowed
+
+- Read git state (`status`, `diff`, `log`, `remote -v`)
+- Suggest exact commands for the human to run
+- Edit files in the working tree
+
+## Forbidden unless the human explicitly asks in the same message
+
+- `git commit` / `git commit --amend`
+- `git push` / `git push --force`
+- Staging + committing “for convenience”
+
+## How to suggest commits (important)
+
+Do **not** use HEREDOC (`$(cat <<'EOF' ... )`). Pasting it often hangs the terminal waiting for `EOF`.
+
+Use only simple one-line (or `-m` twice) forms the human can paste and run immediately:
+
+```bash
+git add path/to/file
+git commit -m "Short subject line"
+git push
+```
+
+Optional body as a second `-m`:
+
+```bash
+git commit -m "Short subject line" -m "Optional longer explanation."
+```
+
+## Default reply pattern
+
+When work is ready to version, provide those simple commands and stop. Do not run the commit yourself.

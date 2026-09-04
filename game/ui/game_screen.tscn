@@ -1,0 +1,117 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://ui/game_screen.gd" id="1_screen"]
+[ext_resource type="PackedScene" path="res://board/board_view.tscn" id="2_board"]
+[ext_resource type="Script" path="res://ui/game_hud.gd" id="3_hud"]
+
+[node name="GameScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_screen")
+
+[node name="BoardView" parent="." instance=ExtResource("2_board")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Hud" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 120.0
+grow_horizontal = 2
+mouse_filter = 0
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+script = ExtResource("3_hud")
+
+[node name="VBox" type="VBoxContainer" parent="Hud"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TopRow" type="HBoxContainer" parent="Hud/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LevelLabel" type="Label" parent="Hud/VBox/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Level 1"
+
+[node name="MovesLabel" type="Label" parent="Hud/VBox/TopRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Moves 0"
+horizontal_alignment = 2
+
+[node name="Buttons" type="HBoxContainer" parent="Hud/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="UndoButton" type="Button" parent="Hud/VBox/Buttons"]
+custom_minimum_size = Vector2(88, 40)
+layout_mode = 2
+disabled = true
+text = "Undo"
+
+[node name="ResetButton" type="Button" parent="Hud/VBox/Buttons"]
+custom_minimum_size = Vector2(88, 40)
+layout_mode = 2
+text = "Reset"
+
+[node name="TipButton" type="Button" parent="Hud/VBox/Buttons"]
+visible = false
+custom_minimum_size = Vector2(88, 40)
+layout_mode = 2
+disabled = true
+text = "Tip"
+
+[node name="HomeButton" type="Button" parent="Hud/VBox/Buttons"]
+custom_minimum_size = Vector2(88, 40)
+layout_mode = 2
+text = "Home"
+
+[node name="WinLayer" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="Center" type="CenterContainer" parent="WinLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="WinLayer/Center"]
+custom_minimum_size = Vector2(320, 180)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="WinLayer/Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="WinLabel" type="Label" parent="WinLayer/Center/Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Order restored"
+horizontal_alignment = 1
+
+[node name="NextButton" type="Button" parent="WinLayer/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Level 2"
+
+[node name="HomeButton" type="Button" parent="WinLayer/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Home"

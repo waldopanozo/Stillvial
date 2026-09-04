@@ -1,0 +1,13 @@
+---
+description: Subagents must use the parent chat model (inherit)
+alwaysApply: true
+---
+
+# Subagent model selection
+
+When dispatching any Task/subagent in this project:
+
+- Set `model` to **`inherit`**, or omit `model` so it inherits the parent session.
+- Do **not** pick alternate slugs (`gpt-*`, `composer-*`, `claude-*`, `cursor-grok-*`, etc.) unless the human explicitly asks for that model in the same message.
+
+Goal: subagents always run on **Auto** / the model selected in the main chat, not a different model chosen by the agent.

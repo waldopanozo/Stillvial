@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://board/tube_view.gd" id="1_tube"]
+
+[node name="TubeView" type="Control"]
+custom_minimum_size = Vector2(68, 216)
+layout_mode = 3
+anchors_preset = 0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_tube")
+
+[node name="Highlight" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 68.0
+offset_bottom = 216.0
+mouse_filter = 2
+color = Color(0.831, 0.694, 0.294, 0.35)
+
+[node name="Glass" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 8.0
+offset_right = 62.0
+offset_bottom = 208.0
+mouse_filter = 2
+
+[node name="Layers" type="Control" parent="."]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 8.0
+offset_right = 62.0
+offset_bottom = 208.0
+mouse_filter = 2
+
+[node name="Hit" type="Button" parent="."]
+layout_mode = 0
+offset_right = 68.0
+offset_bottom = 216.0
+flat = true

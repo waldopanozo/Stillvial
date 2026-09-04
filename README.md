@@ -17,4 +17,13 @@ Open-source Water Sort–style puzzle built with **Godot 4**, targeting Android 
 
 ## Status
 
-Phase 0 complete. Next: Godot MVP — see [implementation plan](./docs/plans/2026-09-04-stillvial-mvp-godot.md).
+Godot MVP in progress: Tasks 1–5 done (playable campaign with undo/reset). Next: local save, tips, patterns, daily, exports — [plan](./docs/plans/2026-09-04-stillvial-mvp-godot.md).
+
+## Development
+
+- Engine: Godot 4.x
+- Open `game/project.godot` in Godot, or:
+
+```bash
+cd game && godot --path . --editor
+```
