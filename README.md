@@ -99,3 +99,7 @@ Serve the web build with any static server, e.g. `python3 -m http.server -d ../e
 ### Smoke check (this environment)
 
 Export templates were **not** installed under `~/.local/share/godot/export_templates/` when presets were added. A CLI Web export correctly failed with missing `web_nothreads_debug.zip` / `web_nothreads_release.zip`. After installing templates for **4.7.2.stable**, re-run the Web command above to verify.
+
+## Backup (guest, no account)
+
+Home screen **Export** / **Import** save a JSON snapshot (`stillvial-progress` v1): campaign progress, settings, daily streak, and mid-game if active. On desktop/editor you can choose a file path; on mobile the default is `user://stillvial_backup.json` in app data. Copy that file elsewhere before uninstalling or switching devices. Optional cloud sync is a later, opt-in feature (design §8).

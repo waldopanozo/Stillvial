@@ -74,6 +74,34 @@ theme_override_font_sizes/font_size = 16
 text = "Streak 0"
 horizontal_alignment = 1
 
+[node name="BackupSpacer" type="Control" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="Backup" type="HBoxContainer" parent="Center/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="ExportButton" type="Button" parent="Center/VBox/Backup"]
+custom_minimum_size = Vector2(134, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Export"
+
+[node name="ImportButton" type="Button" parent="Center/VBox/Backup"]
+custom_minimum_size = Vector2(134, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Import"
+
+[node name="BackupStatus" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 2
+
 [node name="SettingsSpacer" type="Control" parent="Center/VBox"]
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
@@ -94,3 +122,17 @@ custom_minimum_size = Vector2(280, 40)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "Low effects"
+
+[node name="ExportDialog" type="FileDialog" parent="."]
+title = "Export Stillvial backup"
+size = Vector2i(720, 480)
+file_mode = 4
+access = 2
+filters = PackedStringArray("*.json ; Stillvial backup")
+
+[node name="ImportDialog" type="FileDialog" parent="."]
+title = "Import Stillvial backup"
+size = Vector2i(720, 480)
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.json ; Stillvial backup")

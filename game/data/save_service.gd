@@ -2,8 +2,12 @@ class_name SaveService
 extends RefCounted
 
 ## Local campaign progress + mid-game resume (ConfigFile, no network).
+## Optional JSON export/import for guest backup (no account required).
 
 const PATH := "user://stillvial_save.cfg"
+const EXPORT_PATH := "user://stillvial_backup.json"
+const EXPORT_FORMAT := "stillvial-progress"
+const EXPORT_VERSION := 1
 const SECTION_PROGRESS := "progress"
 const SECTION_MID := "mid_game"
 const SECTION_SETTINGS := "settings"
@@ -127,6 +131,83 @@ static func register_daily_clear(date_key: String) -> Dictionary:
 static func is_daily_completed(date_key: String) -> bool:
 	var state: Dictionary = load_daily()
 	return str(state.get("last_completed_date", "")) == date_key.strip_edges()
+
+## Guest backup snapshot (no account). Includes mid-game when active.
+static func build_export_dict() -> Dictionary:
+	var mid: Variant = load_any_mid_game()
+	return {
+		"format": EXPORT_FORMAT,
+		"version": EXPORT_VERSION,
+		"exported_at": Time.get_datetime_string_from_system(true),
+		"progress": load_progress(),
+		"settings": load_settings(),
+		"daily": load_daily(),
+		"mid_game": mid if mid != null else {},
+	}
+
+## Apply a previously exported snapshot. Returns false if format is invalid.
+static func apply_import_dict(data: Variant) -> bool:
+	if not (data is Dictionary):
+		return false
+	var d: Dictionary = data
+	if str(d.get("format", "")) != EXPORT_FORMAT:
+		return false
+	var ver: int = int(d.get("version", 0))
+	if ver < 1 or ver > EXPORT_VERSION:
+		return false
+	var progress_raw: Variant = d.get("progress", {})
+	var settings_raw: Variant = d.get("settings", {})
+	var daily_raw: Variant = d.get("daily", {})
+	if not (progress_raw is Dictionary and settings_raw is Dictionary and daily_raw is Dictionary):
+		return false
+	var progress: Dictionary = progress_raw
+	var settings: Dictionary = settings_raw
+	var daily: Dictionary = daily_raw
+	save_progress(
+		int(progress.get("current_level", 1)),
+		int(progress.get("max_completed", 0))
+	)
+	save_settings(
+		bool(settings.get("patterns_enabled", DEFAULT_PATTERNS_ENABLED)),
+		bool(settings.get("low_effects", DEFAULT_LOW_EFFECTS))
+	)
+	var cfg := _load_cfg()
+	cfg.set_value(
+		SECTION_DAILY,
+		"last_completed_date",
+		str(daily.get("last_completed_date", ""))
+	)
+	cfg.set_value(SECTION_DAILY, "streak", maxi(int(daily.get("streak", 0)), 0))
+	_write_cfg(cfg)
+	var mid_raw: Variant = d.get("mid_game", {})
+	if mid_raw is Dictionary and not mid_raw.is_empty() and int(mid_raw.get("level_number", 0)) >= 1:
+		save_mid_game(
+			int(mid_raw.get("level_number", 1)),
+			mid_raw.get("tubes", []),
+			mid_raw.get("history", []),
+			int(mid_raw.get("move_count", 0)),
+			int(mid_raw.get("capacity", 4))
+		)
+	else:
+		clear_mid_game()
+	return true
+
+static func write_export_file(path: String = EXPORT_PATH) -> Error:
+	var text: String = JSON.stringify(build_export_dict(), "\t")
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	if f == null:
+		return FileAccess.get_open_error()
+	f.store_string(text)
+	return OK
+
+static func read_import_file(path: String) -> bool:
+	if not FileAccess.file_exists(path):
+		return false
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		return false
+	var parsed: Variant = JSON.parse_string(f.get_as_text())
+	return apply_import_dict(parsed)
 
 static func _previous_utc_date_key(date_key: String) -> String:
 	var key: String = date_key.strip_edges()
