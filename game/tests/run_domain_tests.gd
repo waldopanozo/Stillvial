@@ -31,6 +31,38 @@ func _init() -> void:
 
 	failed += _expect("generate(7) not complete", not g1.is_complete())
 
+	# LevelGenerator.generate_daily: UTC YYYYMMDD seed
+	var d1 := LevelGenerator.generate_daily("20260904")
+	var d2 := LevelGenerator.generate_daily("20260904")
+	failed += _expect("daily same day deterministic", d1.tube_color_arrays() == d2.tube_color_arrays())
+	failed += _expect("daily not complete", not d1.is_complete())
+	failed += _expect("daily seed parse", LevelGenerator.date_key_to_seed("20260904") == 20260904)
+	var d_other := LevelGenerator.generate_daily("20260905")
+	failed += _expect(
+		"daily different days differ",
+		d1.tube_color_arrays() != d_other.tube_color_arrays()
+	)
+	failed += _expect("utc_date_key format", SaveService.utc_date_key(0).length() == 8)
+	failed += _expect(
+		"utc_date_key epoch",
+		SaveService.utc_date_key(0) == "19700101"
+	)
+
+	# LevelSolver: next pour exists for early campaign levels
+	var tip1: Variant = LevelSolver.next_pour(LevelGenerator.generate(1))
+	failed += _expect("solver tip level 1", tip1 is Vector2i)
+	if tip1 is Vector2i:
+		var lv_tip := LevelGenerator.generate(1)
+		failed += _expect(
+			"solver tip legal",
+			PourRules.can_pour(lv_tip.tubes[tip1.x], lv_tip.tubes[tip1.y])
+		)
+	failed += _expect("solver null when solved", LevelSolver.next_pour(
+		Level.new(0, [Tube.new(4, [0, 0, 0, 0]), Tube.new(4, [])])
+	) == null)
+	var tip_daily: Variant = LevelSolver.next_pour(LevelGenerator.generate_daily("20260904"))
+	failed += _expect("solver tip daily", tip_daily is Vector2i)
+
 	if failed == 0:
 		print("DOMAIN_TESTS_OK")
 		quit(0)

@@ -60,3 +60,37 @@ custom_minimum_size = Vector2(280, 48)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Play campaign"
+
+[node name="DailyButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(280, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Daily challenge"
+
+[node name="StreakLabel" type="Label" parent="Center/VBox"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Streak 0"
+horizontal_alignment = 1
+
+[node name="SettingsSpacer" type="Control" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="Settings" type="VBoxContainer" parent="Center/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PatternsToggle" type="CheckButton" parent="Center/VBox/Settings"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+button_pressed = true
+text = "Patterns (accessibility)"
+
+[node name="LowEffectsToggle" type="CheckButton" parent="Center/VBox/Settings"]
+custom_minimum_size = Vector2(280, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Low effects"

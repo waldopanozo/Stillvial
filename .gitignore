@@ -13,3 +13,11 @@ Thumbs.db
 .godot/
 *.translation
 .superpowers/
+export_credentials.cfg
+
+# Export artifacts (presets stay in game/export_presets.cfg)
+export/android/
+export/web/
+*.apk
+*.aab
+*.tpz

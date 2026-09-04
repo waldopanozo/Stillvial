@@ -9,9 +9,12 @@ const PAD := 6.0
 
 var tube_index: int = -1
 var capacity: int = 4
+## Patterns are first-class a11y (default on); set from BoardView / settings.
+var patterns_enabled: bool = true
 
-var _layers: Array[ColorRect] = []
+var _layers: Array[LiquidBand] = []
 var _selected: bool = false
+var _tip: bool = false
 
 @onready var _glass: Panel = $Glass
 @onready var _layers_root: Control = $Layers
@@ -28,29 +31,53 @@ func setup(index: int, tube: Tube) -> void:
 	tube_index = index
 	refresh(tube)
 
+func set_patterns_enabled(on: bool) -> void:
+	patterns_enabled = on
+	for band in _layers:
+		band.patterns_enabled = on
+		band.queue_redraw()
+
 func refresh(tube: Tube) -> void:
 	capacity = tube.capacity
 	_ensure_layers(capacity)
 	var slot_h: float = _slot_height()
 	for i in _layers.size():
-		var rect: ColorRect = _layers[i]
+		var band: LiquidBand = _layers[i]
 		if i >= capacity:
-			rect.visible = false
+			band.visible = false
 			continue
-		rect.position = Vector2(PAD, TUBE_HEIGHT - PAD - float(i + 1) * slot_h)
-		rect.size = Vector2(TUBE_WIDTH - PAD * 2.0, slot_h - 1.0)
+		band.position = Vector2(PAD, TUBE_HEIGHT - PAD - float(i + 1) * slot_h)
+		band.size = Vector2(TUBE_WIDTH - PAD * 2.0, slot_h - 1.0)
+		band.patterns_enabled = patterns_enabled
 		if i < tube.colors.size():
-			rect.color = Palette.water(tube.colors[i])
-			rect.visible = true
+			band.set_color_id(tube.colors[i])
+			band.visible = true
 		else:
-			rect.visible = false
+			band.set_color_id(-1)
+			band.visible = false
 
 func set_selected(on: bool) -> void:
 	_selected = on
-	_highlight.visible = on
+	_sync_highlight()
+
+func set_tip_highlighted(on: bool) -> void:
+	_tip = on
+	_sync_highlight()
 
 func is_selected() -> bool:
 	return _selected
+
+func _sync_highlight() -> void:
+	if _selected:
+		_highlight.color = Palette.selection()
+		_highlight.modulate.a = 0.35
+		_highlight.visible = true
+	elif _tip:
+		_highlight.color = Palette.tip_highlight()
+		_highlight.modulate.a = 0.4
+		_highlight.visible = true
+	else:
+		_highlight.visible = false
 
 ## Global rect of the topmost visible water segment (for pour tween).
 func top_segment_global_rect() -> Rect2:
@@ -68,8 +95,8 @@ func next_empty_global_rect(tube: Tube) -> Rect2:
 	var slot: int = tube.colors.size()
 	slot = clampi(slot, 0, maxi(capacity - 1, 0))
 	_ensure_layers(capacity)
-	var rect: ColorRect = _layers[slot]
-	return Rect2(rect.global_position, rect.size)
+	var band: LiquidBand = _layers[slot]
+	return Rect2(band.global_position, band.size)
 
 func hide_top_units(count: int) -> void:
 	var hidden: int = 0
@@ -86,10 +113,11 @@ func _slot_height() -> float:
 
 func _ensure_layers(cap: int) -> void:
 	while _layers.size() < cap:
-		var r := ColorRect.new()
-		r.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_layers_root.add_child(r)
-		_layers.append(r)
+		var band := LiquidBand.new()
+		band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		band.patterns_enabled = patterns_enabled
+		_layers_root.add_child(band)
+		_layers.append(band)
 	for i in _layers.size():
 		_layers[i].visible = i < cap and _layers[i].visible
 
@@ -103,8 +131,22 @@ func _style_glass() -> void:
 	sb.corner_radius_bottom_left = 18
 	sb.corner_radius_bottom_right = 18
 	_glass.add_theme_stylebox_override("panel", sb)
-	_highlight.color = Palette.selection()
-	_highlight.modulate.a = 0.35
+	_sync_highlight()
 
 func _on_hit() -> void:
 	pressed.emit(tube_index)
+
+
+## One liquid slot: solid fill + optional accessibility pattern.
+class LiquidBand extends Control:
+	var color_id: int = -1
+	var patterns_enabled: bool = true
+
+	func set_color_id(id: int) -> void:
+		color_id = id
+		queue_redraw()
+
+	func _draw() -> void:
+		if color_id < 0:
+			return
+		Palette.draw_liquid_band(self, size, color_id, patterns_enabled)

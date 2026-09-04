@@ -6,6 +6,29 @@ extends RefCounted
 const PATH := "user://stillvial_save.cfg"
 const SECTION_PROGRESS := "progress"
 const SECTION_MID := "mid_game"
+const SECTION_SETTINGS := "settings"
+const SECTION_DAILY := "daily"
+
+## Accessibility / sensory defaults: patterns ON, low effects OFF.
+const DEFAULT_PATTERNS_ENABLED := true
+const DEFAULT_LOW_EFFECTS := false
+
+static func save_settings(patterns_enabled: bool, low_effects: bool) -> void:
+	var cfg := _load_cfg()
+	cfg.set_value(SECTION_SETTINGS, "patterns_enabled", patterns_enabled)
+	cfg.set_value(SECTION_SETTINGS, "low_effects", low_effects)
+	_write_cfg(cfg)
+
+static func load_settings() -> Dictionary:
+	var cfg := _load_cfg()
+	return {
+		"patterns_enabled": bool(cfg.get_value(
+			SECTION_SETTINGS, "patterns_enabled", DEFAULT_PATTERNS_ENABLED
+		)),
+		"low_effects": bool(cfg.get_value(
+			SECTION_SETTINGS, "low_effects", DEFAULT_LOW_EFFECTS
+		)),
+	}
 
 static func save_progress(current_level: int, max_completed: int) -> void:
 	var cfg := _load_cfg()
@@ -64,6 +87,60 @@ static func clear_mid_game() -> void:
 
 static func has_mid_game() -> bool:
 	return load_any_mid_game() != null
+
+## UTC calendar day as `YYYYMMDD`.
+static func utc_date_key(unix_time: int = -1) -> String:
+	var t: int = unix_time if unix_time >= 0 else int(Time.get_unix_time_from_system())
+	var d: Dictionary = Time.get_datetime_dict_from_unix_time(t)
+	return "%04d%02d%02d" % [int(d.year), int(d.month), int(d.day)]
+
+static func load_daily() -> Dictionary:
+	var cfg := _load_cfg()
+	return {
+		"last_completed_date": str(cfg.get_value(SECTION_DAILY, "last_completed_date", "")),
+		"streak": maxi(int(cfg.get_value(SECTION_DAILY, "streak", 0)), 0),
+	}
+
+## First clear of `date_key` increments streak (consecutive UTC days).
+## Re-clearing the same day is a no-op. Gaps reset count calmly to 1 (no penalty UX).
+static func register_daily_clear(date_key: String) -> Dictionary:
+	var key: String = date_key.strip_edges()
+	var state: Dictionary = load_daily()
+	var last: String = str(state.get("last_completed_date", ""))
+	var streak: int = int(state.get("streak", 0))
+	var first_clear: bool = last != key
+	if first_clear:
+		if last != "" and last == _previous_utc_date_key(key):
+			streak += 1
+		else:
+			streak = 1
+		var cfg := _load_cfg()
+		cfg.set_value(SECTION_DAILY, "last_completed_date", key)
+		cfg.set_value(SECTION_DAILY, "streak", streak)
+		_write_cfg(cfg)
+	return {
+		"last_completed_date": key if first_clear else last,
+		"streak": streak,
+		"first_clear": first_clear,
+	}
+
+static func is_daily_completed(date_key: String) -> bool:
+	var state: Dictionary = load_daily()
+	return str(state.get("last_completed_date", "")) == date_key.strip_edges()
+
+static func _previous_utc_date_key(date_key: String) -> String:
+	var key: String = date_key.strip_edges()
+	if key.length() != 8 or not key.is_valid_int():
+		return ""
+	var y: int = int(key.substr(0, 4))
+	var m: int = int(key.substr(4, 2))
+	var d: int = int(key.substr(6, 2))
+	var noon_unix: int = int(Time.get_unix_time_from_datetime_dict({
+		"year": y, "month": m, "day": d,
+		"hour": 12, "minute": 0, "second": 0,
+	}))
+	var prev: Dictionary = Time.get_datetime_dict_from_unix_time(noon_unix - 86400)
+	return "%04d%02d%02d" % [int(prev.year), int(prev.month), int(prev.day)]
 
 static func _load_cfg() -> ConfigFile:
 	var cfg := ConfigFile.new()

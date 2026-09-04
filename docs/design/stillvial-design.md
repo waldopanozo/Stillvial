@@ -56,10 +56,10 @@ This is **not** a medical product and must never claim to diagnose, treat, or cu
 - Themes / skins (reasonable v1 scope; avoid overstimulating palettes as default)
 - Privacy-first (no network during gameplay)
 
-### Out of v1
+### Out of v1 (shipped MVP game slice)
 
 - iOS
-- Cloud sync / accounts
+- Cloud sync / accounts (see §8 for **v1.x optional identity** — not in current Godot MVP tasks 1–10)
 - Ads, analytics, rewarded video
 - Aggressive IAP / pay-to-win power-ups
 - Long narrative

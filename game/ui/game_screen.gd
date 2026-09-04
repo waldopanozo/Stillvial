@@ -1,6 +1,8 @@
 extends Control
 
-## Campaign match: BoardView + HUD, undo history, reset, calm win.
+## Match screen: campaign or daily; undo history, reset, tips, calm win.
+
+const TIP_START_LEVEL: int = 10
 
 @onready var _board: BoardView = $BoardView
 @onready var _hud: GameHud = $Hud
@@ -11,18 +13,24 @@ extends Control
 @onready var _win_layer: CanvasLayer = $WinLayer
 
 var _level_number: int = 1
+var _is_daily: bool = false
+var _daily_date_key: String = ""
 ## Snapshots before each successful pour: { "tubes": Array, "moves": int }
 var _history: Array = []
 var _pre_pour: Dictionary = {}
 var _won: bool = false
 
 func _ready() -> void:
+	_is_daily = CampaignSession.is_daily()
+	_daily_date_key = CampaignSession.daily_date_key
 	_level_number = maxi(CampaignSession.requested_level, 1)
 	_win_layer.visible = false
 	_win_label.text = "Order restored"
 	_win_label.add_theme_color_override("font_color", Palette.MIST)
+	_apply_accessibility_settings()
 	_hud.undo_pressed.connect(_on_undo)
 	_hud.reset_pressed.connect(_on_reset)
+	_hud.tip_pressed.connect(_on_tip)
 	_hud.home_pressed.connect(_go_home)
 	_win_next.pressed.connect(_on_next_level)
 	_win_home.pressed.connect(_go_home)
@@ -30,13 +38,51 @@ func _ready() -> void:
 	_board.level_completed.connect(_on_level_completed)
 	var resume: Variant = CampaignSession.resume_payload
 	CampaignSession.resume_payload = null
-	_start_level(_level_number, resume)
+	if _is_daily:
+		_start_daily(_daily_date_key)
+	else:
+		_start_level(_level_number, resume)
+
+func _apply_accessibility_settings() -> void:
+	var settings: Dictionary = SaveService.load_settings()
+	_board.apply_settings(
+		bool(settings.get("patterns_enabled", SaveService.DEFAULT_PATTERNS_ENABLED)),
+		bool(settings.get("low_effects", SaveService.DEFAULT_LOW_EFFECTS))
+	)
+
+func _tips_allowed_for(level_number: int) -> bool:
+	if _is_daily:
+		return true
+	return level_number >= TIP_START_LEVEL
+
+func _start_daily(date_key: String) -> void:
+	_won = false
+	_win_layer.visible = false
+	_is_daily = true
+	_daily_date_key = date_key
+	_level_number = 0
+	_history.clear()
+	_board.clear_tip_highlight()
+	_hud.clear_tip_feedback()
+	_hud.configure_tips(true, GameHud.TIPS_PER_PUZZLE)
+	var level: Level = LevelGenerator.generate_daily(date_key)
+	_board.load_level(level)
+	_pre_pour = _make_snapshot()
+	_hud.set_level_title("Daily")
+	_hud.set_move_count(0)
+	_hud.set_undo_enabled(false)
+	_hud.set_controls_enabled(true)
 
 func _start_level(level_number: int, resume: Variant = null) -> void:
 	_won = false
 	_win_layer.visible = false
+	_is_daily = false
+	_daily_date_key = ""
 	_level_number = level_number
 	_history.clear()
+	_board.clear_tip_highlight()
+	_hud.clear_tip_feedback()
+	_hud.configure_tips(_tips_allowed_for(_level_number), GameHud.TIPS_PER_PUZZLE)
 	if resume != null and int(resume.get("level_number", -1)) == _level_number:
 		_apply_mid_game(resume)
 	else:
@@ -90,6 +136,8 @@ func _restore_snapshot(snap: Dictionary) -> void:
 	_board.load_level(restored)
 
 func _persist_mid_game() -> void:
+	if _is_daily:
+		return
 	var level: Level = _board.get_level()
 	if level == null:
 		return
@@ -104,6 +152,7 @@ func _persist_mid_game() -> void:
 func _on_pour_finished(_from: int, _to: int, amount: int) -> void:
 	if amount <= 0:
 		return
+	_board.clear_tip_highlight()
 	_history.append(_pre_pour)
 	_pre_pour = _make_snapshot()
 	var level: Level = _board.get_level()
@@ -116,36 +165,77 @@ func _on_pour_finished(_from: int, _to: int, amount: int) -> void:
 func _on_undo() -> void:
 	if _won or _board.is_busy() or _history.is_empty():
 		return
+	_board.clear_tip_highlight()
+	_hud.clear_tip_feedback()
 	var snap: Dictionary = _history.pop_back()
 	_restore_snapshot(snap)
 	_pre_pour = _make_snapshot()
 	_hud.set_move_count(int(snap["moves"]))
 	_hud.set_undo_enabled(not _history.is_empty())
+	# Undo does not refill tips.
 	_persist_mid_game()
 
 func _on_reset() -> void:
 	if _won or _board.is_busy():
 		return
+	if _is_daily:
+		_start_daily(_daily_date_key)
+		return
 	SaveService.clear_mid_game()
 	_start_level(_level_number, null)
+	# _start_level refills tips via configure_tips.
+
+func _on_tip() -> void:
+	if _won or _board.is_busy():
+		return
+	if not _hud.tips_enabled() or _hud.tips_remaining() <= 0:
+		return
+	var level: Level = _board.get_level()
+	if level == null:
+		return
+	var hint: Variant = LevelSolver.next_pour(level)
+	if hint == null:
+		# Failed tip does not consume; calm, optional feedback.
+		_hud.show_tip_feedback("No tip right now — take your time")
+		_board.clear_tip_highlight()
+		return
+	var from_i: int = int(hint.x)
+	var to_i: int = int(hint.y)
+	_hud.consume_tip()
+	_hud.clear_tip_feedback()
+	_board.show_tip_highlight(from_i, to_i)
 
 func _on_level_completed() -> void:
 	if _won:
 		return
 	_won = true
+	_board.clear_tip_highlight()
+	_hud.set_controls_enabled(false)
+	_hud.set_undo_enabled(false)
+	if _is_daily:
+		var result: Dictionary = SaveService.register_daily_clear(_daily_date_key)
+		var streak: int = int(result.get("streak", 0))
+		_win_label.text = "Order restored"
+		_win_next.visible = false
+		_win_home.text = "Home · streak %d" % streak
+		_win_layer.visible = true
+		return
 	CampaignSession.register_win(_level_number)
 	SaveService.clear_mid_game()
 	SaveService.save_progress(CampaignSession.campaign_level, CampaignSession.max_completed)
-	_hud.set_controls_enabled(false)
-	_hud.set_undo_enabled(false)
+	_win_next.visible = true
 	_win_next.text = "Level %d" % CampaignSession.campaign_level
+	_win_home.text = "Home"
 	_win_layer.visible = true
 
 func _on_next_level() -> void:
+	if _is_daily:
+		_go_home()
+		return
 	CampaignSession.request_play(CampaignSession.campaign_level, null)
 	_start_level(CampaignSession.requested_level, null)
 
 func _go_home() -> void:
-	if not _won:
+	if not _won and not _is_daily:
 		_persist_mid_game()
 	get_tree().change_scene_to_file("res://ui/home.tscn")

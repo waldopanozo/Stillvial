@@ -6,6 +6,7 @@ extends Node
 const POUR_DURATION := 0.38
 
 var low_effects: bool = false
+var patterns_enabled: bool = true
 ## Parent for pour ghosts (must not be a container that auto-layouts children).
 var overlay: Control
 
@@ -39,13 +40,15 @@ func animate_pour(
 
 	from_view.hide_top_units(amount)
 
-	var ghost := ColorRect.new()
+	var ghost := PourGhost.new()
 	ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ghost.color = Palette.water(color_id)
+	ghost.color_id = color_id
+	ghost.patterns_enabled = patterns_enabled
 	ghost.z_index = 20
 	host.add_child(ghost)
 	ghost.global_position = start.position
 	ghost.size = start.size
+	ghost.queue_redraw()
 
 	var peak_y: float = mini(start.position.y, end.position.y) - 48.0
 	var mid := Vector2(
@@ -57,6 +60,7 @@ func animate_pour(
 	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(ghost, "global_position", mid, POUR_DURATION * 0.45)
 	tween.parallel().tween_property(ghost, "size", Vector2(start.size.x * 0.7, start.size.y), POUR_DURATION * 0.45)
+	tween.tween_callback(ghost.queue_redraw)
 	tween.tween_property(ghost, "global_position", end.position, POUR_DURATION * 0.55)
 	tween.parallel().tween_property(ghost, "size", end.size, POUR_DURATION * 0.55)
 	tween.tween_callback(func() -> void:
@@ -64,6 +68,21 @@ func animate_pour(
 		_spawn_splash(to_view, color_id)
 		on_done.call()
 	)
+
+
+## Ghost liquid that keeps pattern identity during the pour tween.
+class PourGhost extends Control:
+	var color_id: int = -1
+	var patterns_enabled: bool = true
+
+	func _draw() -> void:
+		if color_id < 0:
+			return
+		Palette.draw_liquid_band(self, size, color_id, patterns_enabled)
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_RESIZED:
+			queue_redraw()
 
 func _spawn_splash(at_view: TubeView, color_id: int) -> void:
 	if low_effects:

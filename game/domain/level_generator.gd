@@ -3,13 +3,31 @@ extends RefCounted
 
 const BASE_COLORS: int = 3
 const MAX_COLORS: int = 16
+## Daily puzzles sit in the tip-eligible band (campaign ≥10).
+const DAILY_LEVEL_MIN: int = 10
+const DAILY_LEVEL_SPAN: int = 21
 
 static func generate(level_number: int) -> Level:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = level_number
+	return _generate_with_seed(level_number, level_number, level_number)
 
-	var colors: int = color_count_for(level_number)
-	var cap: int = capacity_for(level_number)
+## Shared UTC daily puzzle. `date_key` is `YYYYMMDD` (e.g. "20260904").
+static func generate_daily(date_key: String) -> Level:
+	var seed_i: int = date_key_to_seed(date_key)
+	var params_level: int = DAILY_LEVEL_MIN + (absi(seed_i) % DAILY_LEVEL_SPAN)
+	return _generate_with_seed(seed_i, params_level, 0)
+
+static func date_key_to_seed(date_key: String) -> int:
+	var cleaned: String = date_key.strip_edges()
+	if cleaned.is_valid_int():
+		return int(cleaned)
+	return cleaned.hash()
+
+static func _generate_with_seed(rng_seed: int, params_level: int, level_number: int) -> Level:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = rng_seed
+
+	var colors: int = color_count_for(params_level)
+	var cap: int = capacity_for(params_level)
 	var empties: int = empty_count_for(colors)
 
 	var tubes: Array[Tube] = []
